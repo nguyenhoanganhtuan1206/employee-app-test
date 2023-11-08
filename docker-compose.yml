@@ -1,0 +1,41 @@
+version: "3"
+services:
+  app:
+    env_file:
+      - .env
+    container_name: employee_app_backend
+    restart: always
+    build: .
+    ports:
+      - "$PORT:$PORT"
+    depends_on:
+      - employee_app_database
+    links:
+      - employee_app_database
+  employee_app_database:
+    image: postgres
+    container_name: employee_app_database
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      TZ: 'GMT'
+      PGTZ: 'GMT'
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres:/data/postgres
+      - ./init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
+    env_file:
+      - .env
+  mailcatcher:
+    restart: on-failure
+    image: dockage/mailcatcher:0.8.2
+    ports:
+    - "1080:1080"
+    - "1025:1025"
+
+volumes:
+  postgres:
+    driver: local
+  minio:
+    driver: local
