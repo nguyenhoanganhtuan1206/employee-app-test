@@ -1,0 +1,26 @@
+on:
+  push:
+    branches:
+      - main
+
+name: Main Workflow
+jobs:
+  sonarqube:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: squ_118c69db6be1b16f4f9e8864f9feb3840636a4ec
+          SONAR_HOST_URL: http://192.168.1.2:9000
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.projectKey=awesome-nestjs-boilerplate
+            -Dsonar.projectName=EmployeeAppTest
+            -Dsonar.exclusions=node_module
+            -Dsonar.sources=.
+            -Dsonar.links.scm=https://github.com/NovahubTechnology/owt-employee-app-backend
