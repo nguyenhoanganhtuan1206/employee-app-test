@@ -1,30 +1,25 @@
-FROM node:lts AS dist
+FROM node:lts as dist
 COPY package.json yarn.lock ./
 
-RUN yarn install
+RUN yarn install 
 
 COPY . ./
 
 RUN yarn build:prod
 
-FROM node:lts AS node_modules
+FROM node:lts as node_modules
 COPY package.json yarn.lock ./
 
-RUN yarn install --prod
+RUN yarn install
+
+FROM node:lts as base
+COPY package.json ./
 
 FROM node:lts
+WORKDIR /app
 
-ARG PORT=3000
+COPY --from=dist dist /app/dist
+COPY --from=node_modules node_modules /app/node_modules
+COPY --from=base package.json /app/package.json
 
-RUN mkdir -p /usr/src/app
-
-WORKDIR /usr/src/app
-
-COPY --from=dist dist /usr/src/app/dist
-COPY --from=node_modules node_modules /usr/src/app/node_modules
-
-COPY . /usr/src/app
-
-EXPOSE $PORT
-
-CMD ["yarn", "start:prod" ]
+CMD ["yarn", "start:prod"]

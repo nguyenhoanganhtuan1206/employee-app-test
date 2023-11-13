@@ -8,9 +8,9 @@ services:
     build: .
     ports:
       - "$PORT:$PORT"
+    volumes:
+      - ./logs:/app/logs
     depends_on:
-      - employee_app_database
-    links:
       - employee_app_database
   employee_app_database:
     image: postgres
@@ -23,19 +23,19 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres:/data/postgres
-      - ./init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
+      - postgres:/var/lib/data/postgres
     env_file:
       - .env
-  mailcatcher:
-    restart: on-failure
-    image: dockage/mailcatcher:0.8.2
+  employee_app_pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_USERNAME: admin
+      PGADMIN_PASSWORD: admin
     ports:
-    - "1080:1080"
-    - "1025:1025"
+      - "5050:80"
+    depends_on:
+      - employee_app_database
 
 volumes:
   postgres:
-    driver: local
-  minio:
     driver: local
